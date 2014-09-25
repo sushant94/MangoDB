@@ -8,6 +8,7 @@ require 'json'
 require 'sinatra'
 require "sinatra/reloader" 
 class MangoDB < Sinatra::Base
+    enable :logging
     configure :development do 
         register Sinatra::Reloader
     end
@@ -19,17 +20,20 @@ class MangoDB < Sinatra::Base
 
     get '/get/:key' do
         content_type :json
-        temporaryStore["h"] = "Mangoes are yellow"
-        ret = temporaryStore[params[:key]]
-        ret.to_json
+        ret = temporaryStore[params[:key].to_s]
+        JSON.dump temporaryStore 
     end
 
     post '/put' do
-        temporaryStore[params[:key]] = params[:value]
+        hash = JSON.parse params["hash"]
+        logger.info hash.inspect
+        hash.each { |k,v| temporaryStore[k.to_s] = v }
+        "OK"
     end
 
     post '/delete' do
         temporaryStore.delete(params[:key])
+        "OK"
     end
 
 end
