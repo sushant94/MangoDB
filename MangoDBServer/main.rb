@@ -7,12 +7,8 @@
 
 require 'json'
 require 'sinatra'
-require "sinatra/reloader" 
 class MangoDB < Sinatra::Base
   enable :logging
-  configure :development do 
-    register Sinatra::Reloader
-  end
 
   temporaryStore = {}
 
@@ -24,7 +20,7 @@ class MangoDB < Sinatra::Base
   get '/get/:key' do
     content_type :json
     ret = temporaryStore[params[:key].to_s]
-    JSON.dump temporaryStore 
+    JSON.dump temporaryStore
   end
 
   post '/put' do
