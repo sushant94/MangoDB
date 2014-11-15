@@ -1,6 +1,7 @@
 require 'bunny'
 require 'json'
 
+# Mango class to communicate with the worker
 class Mango
   attr_reader :reply_queue
   attr_accessor :response, :call_id
@@ -22,26 +23,10 @@ class Mango
     end
   end
 
-  def open(args)
-    args["operation"] = "open"
-    call(args)
-  end
-
-  def get(args)
-    args[:operation] = "get"
-    call(args)
-  end
-
-  def put(args)
-    args[:operation] = "put"
-    call(args)
-  end
-
-  def commit(args)
-    args[:operation] = "commit"
-    call(args)
-  end
-
+  # Call worker
+  #
+  # @params args [Object] Format: { operation: , name: , key: , value: }
+  # @return response [JSON] Returns value from the database
   def call(args)
     args = JSON.dump(args)
     self.call_id = random_key
@@ -52,6 +37,8 @@ class Mango
 
   protected
 
+  # Generate a random key for the call_id.
+  # This is used to relate the function call to the value returned
   def random_key
     (0...10).map { ('a'..'z').to_a[rand(26)] }.join
   end

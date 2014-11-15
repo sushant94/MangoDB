@@ -1,4 +1,5 @@
 .*.swp
+*.pid
 MangoDBServer/store/*
 doc/*
 .yardoc

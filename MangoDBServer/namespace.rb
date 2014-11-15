@@ -1,13 +1,19 @@
-require_relative "exceptions.rb"
+require File.expand_path("../exceptions.rb", __FILE__)
+require 'fileutils'
 require 'json'
+
 class Namespace
   attr_accessor :last_commit
-
 
   private
 
   def loadData
-    @data = JSON.parse(@fd.read)
+    f = @fd.read
+    if f.empty?
+      @data = {}
+    else
+      @data = JSON.parse(f)
+    end
   end
 
   # load information from file
@@ -60,14 +66,27 @@ class Namespace
   end
 
   def keys
+    load if @fd.nil?
+    loadData if @data.nil?
     @data.keys
+  end
+
+  # Returns if a particular namespace exists
+  # @params name [String]
+  # @return [bool]
+  def self.exists?(name)
+    path = File.expand_path("../store/#{name}", __FILE__)
+    File.exists?(path)
+  end
+
+  # Create a new namespace
+  # @params name [String]
+  def self.create(name)
+    path = File.expand_path("../store/#{name}", __FILE__)
+    FileUtils.mkdir_p(path)
+    f = File.open(path+"/data", "w")
+    f.close
   end
 
 end
 
-# @base_url = File.dirname(__FILE__)
-# n = Namespace.new("xyz")
-# n["hello"] = "New New string"
-# puts n.inspect
-# puts n.commit
-# puts n.keys

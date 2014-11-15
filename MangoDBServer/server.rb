@@ -23,30 +23,6 @@ class MangoDB < Sinatra::Base
     mango.call(args)
   end
 
-#  post '/get' do
-#    content_type :json
-#    args = JSON.parse params["hash"]
-#    mango.get(args)
-#  end
-#
-#  post '/open' do
-#    name = JSON.parse params["hash"]
-#    logger.info name.inspect
-#    mango.open(name)
-#  end
-#
-#  post '/put' do
-#    hash = JSON.parse params["hash"]
-#    logger.info hash.inspect
-#    hash.each { |k,v| temporaryStore[k.to_s] = v }
-#    "OK"
-#  end
-#
-#  post '/delete' do
-#    temporaryStore.delete(params[:key])
-#    "OK"
-#  end
-
   # Function to test if the server is alive.
   get '/ping' do
     "pong"
@@ -54,4 +30,3 @@ class MangoDB < Sinatra::Base
 
 end
 
-MangoDB.run!
