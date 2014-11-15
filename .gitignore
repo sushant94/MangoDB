@@ -1,1 +1,4 @@
 .*.swp
+MangoDBServer/store/*
+doc/*
+.yardoc

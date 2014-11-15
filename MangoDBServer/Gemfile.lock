@@ -1,7 +1,10 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    amq-protocol (1.9.2)
     backports (3.6.1)
+    bunny (1.6.3)
+      amq-protocol (>= 1.9.2)
     multi_json (1.10.1)
     rack (1.5.2)
     rack-protection (1.5.3)
@@ -25,5 +28,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bunny
   sinatra
   sinatra-contrib
