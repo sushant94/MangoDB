@@ -2,10 +2,9 @@ require "net/http"
 require "json"
 require_relative "db.rb"
 
-
 binding = binding()
 
-while true    
+while true
   print "MangoDB > "
   input = STDIN.gets.chomp!
   begin

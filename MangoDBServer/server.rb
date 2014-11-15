@@ -6,7 +6,7 @@ require File.expand_path("../mango.rb", __FILE__)
 
 class MangoDB < Sinatra::Base
   enable :logging
-  
+
   conn = Bunny.new(automatically_recover: false, heartbeat: 10)
   conn.start
   ch = conn.create_channel
