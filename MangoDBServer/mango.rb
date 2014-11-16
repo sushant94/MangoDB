@@ -1,11 +1,23 @@
 require 'bunny'
 require 'json'
 
+
 # Mango class to communicate with the worker
 class Mango
   attr_reader :reply_queue
   attr_accessor :response, :call_id
   attr_reader :lock, :condition
+
+  # Convert to json if it is a valid json. Else return the same string
+  # @params json [String] string to convert
+  # @return [Object]
+  def to_json(json)
+    begin
+      JSON.parse(json)
+    rescue
+      json
+    end
+  end
 
   def initialize(ch, server_queue)
     @ch = ch
@@ -32,7 +44,7 @@ class Mango
     self.call_id = random_key
     @x.publish(args.to_s, routing_key: @server_queue, correlation_id: call_id, reply_to: @reply_queue.name)
     lock.synchronize{condition.wait(lock)}
-    response
+    JSON.dump({response: to_json(response)})
   end
 
   protected

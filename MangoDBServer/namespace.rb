@@ -9,13 +9,13 @@ class Namespace
 
   def loadData
     f = @fd.read
-    if f.empty?
-      @data = {}
-    else
+    begin
       @data = JSON.parse(f)
+    rescue
+      @data = {}
     end
   end
-
+  
   # load information from file
   # data is read from file only on the first access.
   def load
@@ -84,8 +84,14 @@ class Namespace
   def self.create(name)
     path = File.expand_path("../store/#{name}", __FILE__)
     FileUtils.mkdir_p(path)
-    f = File.open(path+"/data", "w")
+    f = File.open(path + "/data", "w")
     f.close
+  end
+
+  def close
+    commit
+    @fd.close
+    @data = nil
   end
 
 end

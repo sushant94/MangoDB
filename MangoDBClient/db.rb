@@ -1,6 +1,9 @@
+require 'net/http'
+require 'json'
+
 class DB
   attr_accessor :port, :ip, :uri
-
+  
   def create(name)
     @request[:operation] = 'create'
     @request[:name] = name
@@ -36,13 +39,24 @@ class DB
     @request[:operation] = 'get'
     @request[:key] = key
     response = make_request
-    response.strip!
     if response != 'null'
-      JSON.parse response
       response
     else
       nil
     end
+  end
+
+  alias :[] :get
+
+  def []=(key, value)
+    insert({key.to_sym => value})
+  end
+
+  def close
+    @request[:operation] = 'close'
+    r = make_request
+    @request[:name] = nil
+    r
   end
 
   def commit
@@ -51,19 +65,28 @@ class DB
   end
 
   def ping
-    response = Net::HTTP.get(URI(@uri[0..-3] + "ping"))
+    Net::HTTP.get(URI(@uri[0..-3] + "ping"))
   end
 
-  def initialize(ip, port)
+  def initialize(ip = 'localhost', port = 9292)
     @ip = ip
     @port = port
     @uri = "http://#{@ip.to_s}:#{@port.to_s}/op"
     @request = { operation: "", name: "", key: "", value: "" }
   end
 
-  private:
+  def finalize
+    commit
+    @fd.close
+  end
+
+  private
     def make_request
       response = Net::HTTP.post_form(URI(@uri), "hash" => JSON.dump(@request))
-      JSON.parse(response)
+      if response.code.to_i == 200
+        JSON.parse(response.body)["response"]
+      else
+        "#{response.code} : #{response.body}"
+      end
     end
 end

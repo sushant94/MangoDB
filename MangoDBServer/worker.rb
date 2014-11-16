@@ -23,7 +23,7 @@ class Worker
     @q.subscribe(block: true) do |delivery_info, properties, payload|
       payload = JSON.parse(payload)
       response = JSON.dump self.respond(payload)
-      @x.publish(response.to_s, routing_key: properties.reply_to, correlation_id: properties.correlation_id)
+      @x.publish(response, routing_key: properties.reply_to, correlation_id: properties.correlation_id)
     end
   end
 
@@ -42,6 +42,8 @@ class Worker
       self.create(payload["name"])
     when "keys"
       self.keys(payload["name"])
+    when "close"
+      self.close(payload["name"])
     else
       "Invalid"
     end
@@ -51,12 +53,12 @@ class Worker
     if !@namespaces[name].nil?
       return "OK"
     end
-    namespace = Namespace.new(name)
-    @namespaces[name] = namespace
-    if namespace.nil?
-      "Namespace ERROR: No such Namespace"
+    if Namespace.exists?(name)
+      namespace = Namespace.new(name)
+      @namespaces[name] = namespace
+      "Namespace: #{name} loaded"
     else
-      "OK"
+      "Namespace ERROR: No such Namespace"
     end
   end
 
@@ -64,7 +66,7 @@ class Worker
     if @namespaces[name].nil?
       "Namespace ERROR: No Namespace selected"
     else
-      @namespaces[name][key]
+      @namespaces[name][key] || "NO KEY ERROR: Key not found"
     end
   end
 
@@ -98,6 +100,16 @@ class Worker
     else
       Namespace.create(name)
       "Namespace: #{name} created"
+    end
+  end
+
+  def close(name)
+    if name.nil?
+      "Namespace ERROR: No Namespace selected"
+    else
+      @namespaces[name].close unless @namespaces[name].nil?
+      @namespaces[name] = nil
+      "OK"
     end
   end
 
